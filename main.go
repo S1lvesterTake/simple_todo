@@ -45,6 +45,10 @@ func main() {
 
 	//todo handler
 	router.HandleFunc("/api/v1/todo", handlers.CreateTodoHandler(db)).Methods("POST")
+	router.HandleFunc("/api/v1/todo", handlers.GetListTodoHandler(db)).Methods("GET")
+	router.HandleFunc("/api/v1/todo/{id}", handlers.GetTodoByIDHandler(db)).Methods("GET")
+	router.HandleFunc("/api/v1/todo/{id}", handlers.DeleteTodoHandler(db)).Methods("DELETE")
+	router.HandleFunc("/api/v1/todo/{id}", handlers.UpdateTodoHandler(db)).Methods("PUT")
 
 	http.ListenAndServe(":8001", router)
 }
