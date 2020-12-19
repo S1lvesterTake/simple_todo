@@ -4,6 +4,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/S1lvesterTake/simple_todo/application/handlers"
+
 	"github.com/S1lvesterTake/simple_todo/application/models"
 
 	// . "os"
@@ -36,6 +38,13 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/healtcheck", healthCheckHandler).Methods("GET")
+
+	//user handler
+	router.HandleFunc("/api/v1/register", handlers.CreateUserHandler(db)).Methods("POST")
+	router.HandleFunc("/api/v1/user", handlers.GetListUserHandler(db)).Methods("GET")
+
+	//todo handler
+	router.HandleFunc("/api/v1/todo", handlers.CreateTodoHandler(db)).Methods("POST")
 
 	http.ListenAndServe(":8001", router)
 }
