@@ -4,6 +4,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/S1lvesterTake/simple_todo/application/models"
+
 	// . "os"
 
 	"github.com/S1lvesterTake/simple_todo/application/db"
@@ -25,7 +27,11 @@ func init() {
 func main() {
 	log.Info("Starting TODO API")
 
-	db.DbInit()
+	//database section
+	db := db.DbInit()
+	defer db.Close()
+	db.DropTableIfExists(&models.TodoItem{}, &models.User{})
+	db.AutoMigrate(&models.TodoItem{}, &models.User{})
 
 	router := mux.NewRouter()
 

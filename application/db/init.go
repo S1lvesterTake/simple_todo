@@ -13,5 +13,8 @@ func DbInit() *gorm.DB {
 	if err != nil {
 		log.Panic("Failed to connect database with error " + err.Error())
 	}
+
+	db.LogMode(true)
+
 	return db
 }
