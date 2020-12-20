@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/S1lvesterTake/simple_todo/application/handlers"
+	"github.com/S1lvesterTake/simple_todo/middleware"
 
 	"github.com/S1lvesterTake/simple_todo/application/models"
 
@@ -36,6 +37,8 @@ func main() {
 	db.AutoMigrate(&models.TodoItem{}, &models.User{})
 
 	router := mux.NewRouter()
+	//middleware
+	router.Use(middleware.Auth)
 
 	router.HandleFunc("/healtcheck", healthCheckHandler).Methods("GET")
 
