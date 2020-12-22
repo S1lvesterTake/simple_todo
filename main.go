@@ -1,13 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/S1lvesterTake/simple_todo/application/handlers"
+	"github.com/S1lvesterTake/simple_todo/application/models"
 	"github.com/S1lvesterTake/simple_todo/middleware"
 
-	// . "os"
+	. "os"
 
 	"github.com/S1lvesterTake/simple_todo/application/db"
 	"github.com/gorilla/mux"
@@ -15,12 +17,12 @@ import (
 )
 
 func init() {
-	// file, err := OpenFile("todo.log", O_RDWR|O_CREATE|O_APPEND, 0666)
-	// if err != nil {
-	// 	fmt.Println("Could not open file with error: " + err.Error())
-	// }
+	file, err := OpenFile("todo.log", O_RDWR|O_CREATE|O_APPEND, 0666)
+	if err != nil {
+		fmt.Println("Could not open file with error: " + err.Error())
+	}
 
-	// log.SetOutput(file)
+	log.SetOutput(file)
 	log.SetFormatter(&log.TextFormatter{})
 	log.SetReportCaller(true)
 }
@@ -31,8 +33,8 @@ func main() {
 	//database section
 	db := db.DbInit()
 	defer db.Close()
-	// db.DropTableIfExists(&models.TodoItem{}, &models.User{})
-	// db.AutoMigrate(&models.TodoItem{}, &models.User{})
+	db.DropTableIfExists(&models.TodoItem{}, &models.User{})
+	db.AutoMigrate(&models.TodoItem{}, &models.User{})
 
 	router := mux.NewRouter()
 	//middleware
