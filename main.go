@@ -7,8 +7,6 @@ import (
 	"github.com/S1lvesterTake/simple_todo/application/handlers"
 	"github.com/S1lvesterTake/simple_todo/middleware"
 
-	"github.com/S1lvesterTake/simple_todo/application/models"
-
 	// . "os"
 
 	"github.com/S1lvesterTake/simple_todo/application/db"
@@ -33,8 +31,8 @@ func main() {
 	//database section
 	db := db.DbInit()
 	defer db.Close()
-	db.DropTableIfExists(&models.TodoItem{}, &models.User{})
-	db.AutoMigrate(&models.TodoItem{}, &models.User{})
+	// db.DropTableIfExists(&models.TodoItem{}, &models.User{})
+	// db.AutoMigrate(&models.TodoItem{}, &models.User{})
 
 	router := mux.NewRouter()
 	//middleware
@@ -53,6 +51,8 @@ func main() {
 	router.HandleFunc("/api/v1/todo/{id}", handlers.DeleteTodoHandler(db)).Methods("DELETE")
 	router.HandleFunc("/api/v1/todo/{id}", handlers.UpdateTodoHandler(db)).Methods("PUT")
 
+	//image handler
+	router.HandleFunc("/image/{imageName}", handlers.ShowImageHandler).Methods("GET")
 	http.ListenAndServe(":8001", router)
 }
 

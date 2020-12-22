@@ -2,9 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -17,10 +21,53 @@ func CreateTodoHandler(db *gorm.DB) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		description := r.FormValue("description")
 
-		newTodo := &model.TodoItem{Description: description, IsCompleted: false}
+		//menambahkan gambar
+		fileUploaded, header, err := r.FormFile("image")
+		if err != nil {
+			log.Warn("Failed get image with error " + err.Error())
+			w.Header().Set("content-type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			io.WriteString(w, `{"Error":"Failed get image"}`)
+			return
+		}
+		defer fileUploaded.Close()
+		dir, err := os.Getwd()
+		if err != nil {
+			log.Warn("Failed get working directory " + err.Error())
+			w.Header().Set("content-type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			io.WriteString(w, `{"Error":"Failed get working directory"}`)
+			return
+		}
+
+		t := time.Now()
+		fileName := fmt.Sprintf("%s%s%s", "image", t.Format("20060102150405"), filepath.Ext(header.Filename))
+		fileLocation := filepath.Join(dir, "images", fileName)
+		targetFile, err := os.OpenFile(fileLocation, os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			log.Warn("Failed open file with error " + err.Error())
+			w.Header().Set("content-type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			io.WriteString(w, `{"Error":"Failed open file"}`)
+			return
+		}
+
+		defer targetFile.Close()
+
+		_, err = io.Copy(targetFile, fileUploaded)
+		if err != nil {
+			log.Warn("Failed copy file with error " + err.Error())
+			w.Header().Set("content-type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			io.WriteString(w, `{"Error":"Failed copy file"}`)
+			return
+		}
+
+		fullPathName := fmt.Sprintf("%s/image/%s", r.Host, fileName)
+		newTodo := &model.TodoItem{Description: description, IsCompleted: false, ImageURL: fullPathName}
 		db.Create(&newTodo)
 		result := db.Last(&newTodo)
-
+		log.WithFields(log.Fields{"Description": description, "ImageURL": fullPathName}).Info("Success Add new Todo Item")
 		w.Header().Set("content-type", "application/json")
 		json.NewEncoder(w).Encode(result.Value)
 	}

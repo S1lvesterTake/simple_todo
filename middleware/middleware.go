@@ -18,6 +18,7 @@ func Auth(db *gorm.DB) func(h http.Handler) http.Handler {
 			notAuth := []string{
 				"/healtcheck",
 				"/api/v1/register",
+				"/image",
 			}
 			withAuth := true
 			for _, path := range notAuth {
