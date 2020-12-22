@@ -38,7 +38,7 @@ func main() {
 
 	router := mux.NewRouter()
 	//middleware
-	router.Use(middleware.Auth)
+	router.Use(middleware.Auth(db))
 
 	router.HandleFunc("/healtcheck", healthCheckHandler).Methods("GET")
 
